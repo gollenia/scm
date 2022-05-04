@@ -1,0 +1,14 @@
+title: "Hallo"
+
+connections:
+  - name: "DigitalOcean"
+    color: "#0000ff"
+    address: "gollenia.at"
+    user: thomas
+    key: d
+  - name: "kids-team Server"
+    color: "#0044ff"
+    address: "gollenia.at"
+    port: 4022
+    user: thomas
+    key: k
