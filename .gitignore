@@ -1,0 +1,12 @@
+_deps
+.vscode
+CMakeFiles
+cmake_install.cmake
+CMakeCache.txt
+CMakeDoxyfile.in
+CMakeDoxygenDefaults.cmake
+CPackConfig.cmake
+CPackSourceConfig.cmake
+CPackSourceConfig.cmake
+Makefile
+ssc
