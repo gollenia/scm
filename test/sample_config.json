@@ -1,9 +1,0 @@
-{
-	"Server": {
-		"icon": "hihi",
-		"address": "gollenia.at",
-		"port": "22",
-		"name": "DigitalOcean Server",
-		"key": "d"
-	}
-}
