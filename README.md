@@ -1,6 +1,6 @@
 # SSH Connection manager
 
-This is a small and (yet) dirty SSH connection manager. You can use it to quickly connect to different servers with different usernames and ports.  
+This is a small and (yet) dirty SSH connection manager. You can use it to quickly connect to different servers with different usernames and ports. There already exists [nccm](https://github.com/flyingrhinonz/nccm), but it was not exactly what I was looking for.
 
 ## Features
 ### Finished
