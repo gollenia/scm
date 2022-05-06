@@ -2,6 +2,8 @@
 
 This is a small and (yet) dirty SSH connection manager. You can use it to quickly connect to different servers with different usernames and ports. There already exists [nccm](https://github.com/flyingrhinonz/nccm), but it was not exactly what I was looking for.
 
+![Screenshot](https://gollenia.at/wp-content/uploads/2022/05/scm.jpg)
+
 ## Features
 ### Finished
 - Every connection can have a shortcut assigned for quick access.
