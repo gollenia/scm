@@ -44,12 +44,12 @@ Add a `~/.scm.yaml` file and add connections like so:
 connections:
   - title: "DigitalOcean"
     server: "mydroplet.example.net"
-    user: root
+    username: root
 	port: 4022
     shortcut: d
   - title: "Home Server"
     server: "192.168.1.5"
-    user: john
+    username: john
     shortcut: k
 ```
 
