@@ -1,6 +1,17 @@
 # SSH Connection manager
 
-This is a small and (yet) not functional SSH connection manager. You can use it to quickly connect to different servers with different usernames and ports. Every connection can have a letter assigned for quick access. 
+This is a small and (yet) dirty SSH connection manager. You can use it to quickly connect to different servers with different usernames and ports.  
+
+## Features
+### Finished
+- Every connection can have a shortcut assigned for quick access.
+- Connections can be accessed by their number (only 1-9)
+
+### Planned
+- Interactive connection editor (F2)
+- Help text (F1)
+- commandline options (shortcut, config file path, ...)
+- colors, icons (nerdfont)
 
 ## Build
 
@@ -14,23 +25,30 @@ Then, clone the repository
 
 ```shellsession
 $ cd
-$ git clone 
+$ git clone https://github.com/gollenia/scm
+```
+
+Please be aware that the Connection manager uses [FTXUI](https://github.com/ArthurSonzogni/FTXUI), a Terminal UI comparable to ncurses. So when running cmake, make sure you have a working internet connection:
+
+```shellsession
+$ cd scm
+$ cmake .
+$ make
 ```
 
 ## Configure
 
-Add a `~/.ssc.yaml` file and add connections like so:
+Add a `~/.scm.yaml` file and add connections like so:
 
 ```
 connections:
-  - name: "DigitalOcean"
-    address: "mydroplet.example.net"
+  - title: "DigitalOcean"
+    server: "mydroplet.example.net"
     user: root
 	port: 4022
     shortcut: d
-  - name: "Home Server"
-    address: "192.168.1.5"
-    port: 4022
+  - title: "Home Server"
+    server: "192.168.1.5"
     user: john
     shortcut: k
 ```
