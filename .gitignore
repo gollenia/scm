@@ -10,3 +10,4 @@ CPackSourceConfig.cmake
 CPackSourceConfig.cmake
 Makefile
 scm
+*.gz
