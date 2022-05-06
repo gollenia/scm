@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
 	using namespace std;
 
 	// later we add a command line argument here
-	string name = "./test/sample_config.yaml";
+	string name = "~/.scm.yaml";
 	YAML::Node config = YAML::LoadFile(name);
 
 	if(config["connections"].size() == 0) {
@@ -88,10 +88,19 @@ int main(int argc, char *argv[]) {
 		return false;
 	});
 
-
+	// This really shout be in a sep. class
 	screen.Loop(component);
-	
-	std::cout << "Selected element = " << config["connections"][selected]["title"] << std::endl;
+	std::string command = "ssh " 
+		+ config["connections"][selected]["username"].as<string>() + "@"
+		+ config["connections"][selected]["server"].as<string>()
+		+ " -p" + (config["connections"][selected]["port"].IsDefined() ? config["connections"][selected]["port"].as<string>() : "22");
+
+	int commandLength = command.size();
+ 
+    char *cCommand = new char[commandLength + 1];
+	std::copy(command.begin(), command.end(), cCommand);
+    cCommand[commandLength] = '\0';
+	system(cCommand);
 	
 	return EXIT_SUCCESS;
 }
