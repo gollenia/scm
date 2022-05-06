@@ -1,5 +1,8 @@
 #include <iostream>
 #include <string>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
 
 #include "ftxui/component/captured_mouse.hpp"      // for ftxui
 #include "ftxui/component/component.hpp"           // for Menu
@@ -14,8 +17,16 @@ int main(int argc, char *argv[]) {
 	using namespace ftxui;
 	using namespace std;
 
+	// TODO: Put this stuff in seperate class that returns a YAML::Node or false
+	const char *homedir;
+
+	if ((homedir = getenv("HOME")) == NULL) {
+		homedir = getpwuid(getuid())->pw_dir;
+	}
+
 	// later we add a command line argument here
-	string name = "~/.scm.yaml";
+	std::string home(homedir);
+	std::string name = home + "/.scm.yaml";
 	YAML::Node config = YAML::LoadFile(name);
 
 	if(config["connections"].size() == 0) {
