@@ -53,6 +53,8 @@ connections:
     shortcut: k
 ```
 
+> 👉 Add `"\es": "scm\n"` to your `.inputrc` and you can call scm with <kbd>ALT</kbd>+<kbd>s</kbd>. So you can connect to your home server, for example with <kbd>ALT</kbd>+<kbd>s</kbd> <kbd>k</kbd>
+
 ## FAQ
 
   - Can I store Passwords? 
