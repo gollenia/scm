@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.11)
 
-project(ssc LANGUAGES CXX VERSION 1.0.0)
+project(scm LANGUAGES CXX VERSION 1.0.0)
 
 include(FetchContent)
  
@@ -23,9 +23,9 @@ if(NOT ftxui_POPULATED)
 endif()
  
 
-add_executable(ssc src/main.cpp)
+add_executable(scm src/main.cpp)
 
-target_link_libraries(ssc
+target_link_libraries(scm
   PRIVATE ftxui::screen
   PRIVATE ftxui::dom
   PRIVATE ftxui::component # Not needed for this example.
