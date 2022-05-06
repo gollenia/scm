@@ -9,4 +9,4 @@ CPackConfig.cmake
 CPackSourceConfig.cmake
 CPackSourceConfig.cmake
 Makefile
-ssc
+scm
