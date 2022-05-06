@@ -2,19 +2,17 @@
 #include <string>
 #include "yaml-cpp/yaml.h"
 
-using namespace std;
-
 /**
  * Simple Class to make sure that no data is missing
  *
  */
 class MenuItem  {
 	public: int id;
-	public: string key;
-	public: string name;
-	public: string address;
-	public: string user;
-	public: string port; 
+	public: std::string shortcut;
+	public: std::string name;
+	public: std::string address;
+	public: std::string user;
+	public: std::string port; 
 	
 	/**
 	 * Simple Class to make sure that no data is missing
@@ -24,18 +22,19 @@ class MenuItem  {
 	 */
 	static MenuItem fromYAMLNode(YAML::Node node){
 		MenuItem instance;
-		instance.key = node["key"].as<string>();
-		instance.name = node["name"].as<string>();
-		instance.address = node["address"].as<string>();
-		instance.user = node["user"].as<string>();
-		instance.port = node["port"].as<string>();
+		instance.shortcut = "hjh";
+		instance.name = "dfdsrf";
+		instance.address = "fg";
+		instance.user = "sdfdsf";
+		instance.port = "fdsf";
 		return instance;
 	}
 
 	static std::vector<std::string> getStringsFromMenuItems(std::vector<MenuItem> items) {
 		std::vector<std::string> result;
-		for(int i; i >= items.size(); i++) {
+		for(int i; i < items.size(); i++) {
 			result.push_back(items[i].name);
+			std::cout << items[i].name;
 		}
 		return result;
 	}
