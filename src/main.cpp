@@ -12,10 +12,12 @@
 #include "string_helpers.hpp"
 #include "connection_menu.hpp"
 
+#include "modules/errors.hpp"
+#include "modules/menu_items.hpp"
+
 
 int main(int argc, char *argv[]) {
-	using namespace ftxui;
-	using namespace std;
+	
 
 	// TODO: Put this stuff in seperate class that returns a YAML::Node or false
 	const char *homedir;
@@ -34,78 +36,79 @@ int main(int argc, char *argv[]) {
 		return EXIT_SUCCESS;
 	}
     
-
 	int selected{0};
+	bool openConnection{false};
 
-	std::vector<std::string> menuItems;
+	Errors* errors = new Errors;
+	MenuItems items = MenuItems::fromYAMLNode(config["connections"], errors);
 
-	for(std::uint8_t i = 0; i < config["connections"].size(); i++) {
-		if(!config["connections"][i]["shortcut"].IsDefined()) continue;
-		if(!config["connections"][i]["title"].IsDefined()) continue;
-		if(!config["connections"][i]["username"].IsDefined()) continue;
-		if(!config["connections"][i]["server"].IsDefined()) continue;
-		
-		menuItems.push_back(
-			std::to_string(i+1) + "|"
-			+ config["connections"][i]["shortcut"].as<string>() + "|" 
-			+ config["connections"][i]["title"].as<string>() + "|"
-			+ config["connections"][i]["username"].as<string>() + "@"
-			+ config["connections"][i]["server"].as<string>() + ":"
-			+ (config["connections"][i]["port"].IsDefined() ? config["connections"][i]["port"].as<string>() : "22")
-		);
-	}
-	auto screen = ScreenInteractive::Fullscreen();
-	auto menu = ConnectionMenu(&menuItems, &selected);
+	auto screen = ftxui::ScreenInteractive::Fullscreen();
+	std::vector<std::string> menuEntries = items.toStrings();
+	
+	auto menu = ConnectionMenu(&menuEntries, &selected);
+
+	Element bottomMessage = errors->existing() ? bgcolor(Color::Red, text(" " + errors->pop() + " ")) : text(" Make your choice");
+	
 
 	auto renderer = Renderer(menu, [&] {
   		return vbox({
-			  text("SSH Connection Manager") | borderLight,
+			  text("SSH Connection Manager 0.0.2") | borderLight,
 			  text(""),
 			  hbox(
-				  text("#   Key Name") | flex_grow,
-				  text("Connection")
+				  text(" #   Key Name") | flex_grow,
+				  text("Connection ")
 			  ),
 			  separator(),
 			  menu->Render(),
 			  filler(),
 			  hbox({
-				  text("Please make your choice") | flex_grow,
+				  bottomMessage,
+				  text("") | flex_grow,
 				  text("Press C-c or F3 to quit")
 			  })
 		  });
 
 	});
 
+	
+
 	// here, we capture the short keys and quit
 	auto component = CatchEvent(renderer, [&](Event event) {
-		for (int i = 0; i < config["connections"].size(); i++) {
-			if (event == Event::Character(config["connections"][i]["shortcut"].as<string>())) {
+		if (event == Event::Return) {	
 				screen.ExitLoopClosure()();
-				selected = i;
-				return true;
-			}
-			
-		}
-		if (event == Event::Return || event == Event::F3) {	
-				screen.ExitLoopClosure()();
+				openConnection = true;
 				return true;
 		}
 		// doesn't work, yet
 		if (isdigit(event.character().at(0))) {
 			selected = std::stoi(event.character()) + 1;
+			openConnection = true;
 			screen.ExitLoopClosure()();
 			return true;
 		}
+
+		if (event == Event::F3) {	
+				screen.ExitLoopClosure()();
+				return true;
+		}
+		MenuItem* item = items.findByShortcut(event.character());
+		if(item) {
+			screen.ExitLoopClosure()();
+			selected = item->index;
+			openConnection = true;
+			return true;
+		};
 		return false;
 	});
-
+	
 	// This really shout be in a sep. class
 	screen.Loop(component);
-	std::string command = "ssh " 
-		+ config["connections"][selected]["username"].as<string>() + "@"
-		+ config["connections"][selected]["server"].as<string>()
-		+ " -p" + (config["connections"][selected]["port"].IsDefined() ? config["connections"][selected]["port"].as<string>() : "22");
 
+	if(openConnection == false) {
+		return EXIT_SUCCESS;
+	}
+	
+	std::string command = items.find(selected)->getCommand();
 	int commandLength = command.size();
  
     char *cCommand = new char[commandLength + 1];
