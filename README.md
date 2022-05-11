@@ -61,7 +61,6 @@ connections:
 
   - Can I store Passwords? 
   No. I assume you use SSH keys, which is much safer
-<<<<<<< HEAD
 
 ## Changelog
 
@@ -71,5 +70,3 @@ connections:
 
 ### 0.0.1 
 - initial release
-=======
->>>>>>> b9f619c5432b7fcd1376e5dbcc43731517b32acc
