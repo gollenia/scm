@@ -59,3 +59,12 @@ connections:
 
   - Can I store Passwords? 
   No. I assume you use SSH keys, which is much safer
+
+## Changelog
+
+### 0.0.2
+- Ctrl-C now works as expected
+- Better error handeling with corrupt YAML files
+
+### 0.0.1 
+- initial release
