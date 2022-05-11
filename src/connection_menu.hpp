@@ -14,8 +14,8 @@ Component ConnectionMenu(std::vector<std::string>* entries, int* selected) {
 		std::vector<std::string> labelArray = StringHelpers::split(state.label, '|');
 		std::string numberColumn = (std::stoi(labelArray[0]) < 10 ? labelArray[0] + "  " : labelArray[0] + " ");
 		Element e = hbox({
-			text(numberColumn + " " + labelArray[1] + "   " + labelArray[2] ) | flex,
-			text(labelArray[3]),
+			text(" " + numberColumn + " " + labelArray[1] + "   " + labelArray[2]) | flex,
+			text(labelArray[3] + " "),
 		});
 		if (state.focused)
 		e = e | bgcolor(Color::Blue);
