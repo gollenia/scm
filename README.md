@@ -6,18 +6,18 @@ This is a small and (yet) dirty SSH connection manager. You can use it to quickl
 
 ## Features
 ### Finished
-- Every connection can have a shortcut assigned for quick access.
+- Search function for quick access
 - Connections can be accessed by their number (only 1-9)
 
 ### Planned
 - Interactive connection editor (F2)
 - Help text (F1)
-- commandline options (shortcut, config file path, ...)
+- commandline options (config file path, ...)
 - colors, icons (nerdfont)
 
 ## Build
 
-To build ssc, you need to install `yaml-cpp` first. On Ubuntu, type
+To build scm, you need to install `yaml-cpp` first. On Ubuntu, type
 
 ```shellsession
 $ sudo apt-get install libyaml-cpp-dev
