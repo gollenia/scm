@@ -48,11 +48,9 @@ connections:
     server: "mydroplet.example.net"
     username: root
 	port: 4022
-    shortcut: d
   - title: "Home Server"
     server: "192.168.1.5"
     username: john
-    shortcut: k
 ```
 
 > 👉 Add `"\es": "scm\n"` to your `.inputrc` and you can call scm with <kbd>ALT</kbd>+<kbd>s</kbd>. So you can connect to your home server, for example with <kbd>ALT</kbd>+<kbd>s</kbd> <kbd>k</kbd>
@@ -63,6 +61,10 @@ connections:
   No. I assume you use SSH keys, which is much safer
 
 ## Changelog
+
+### 0.0.3
+- removed shortcuts
+- added search function
 
 ### 0.0.2
 - Ctrl-C now works as expected

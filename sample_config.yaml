@@ -5,9 +5,7 @@ connections:
     server: "mydroplet.example.net"
     username: root
 	  port: 4022
-    shortcut: d
   - title: "Home Server"
     server: "192.168.1.5"
     port: 4022
     username: john
-    shortcut: k
