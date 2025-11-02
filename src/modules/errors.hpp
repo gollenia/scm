@@ -2,19 +2,27 @@
 #include <vector>
 
 class Errors {
-	public: 
+	private: 
 		std::vector<std::string> messages;
+
+	public:
 	
-		int add(std::string message) {
+		void push(const std::string& message) {
 			messages.push_back(message);
-			return messages.size();
 		}
 
 		std::string pop() {
-			return messages[messages.size()-1];
+			if (messages.empty()) return "No errors.";
+			std::string msg = messages.back();
+			messages.pop_back();
+			return msg;
 		}
 
-		bool existing() {
+		int count() {
 			return messages.size();
+		}
+
+		bool has_errors() {
+			return !messages.empty();
 		}
 };
