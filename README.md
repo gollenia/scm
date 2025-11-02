@@ -62,6 +62,9 @@ connections:
 
 ## Changelog
 
+### 0.0.4
+- small bugfix: ignore uppercase letters in search
+
 ### 0.0.3
 - removed shortcuts
 - added search function

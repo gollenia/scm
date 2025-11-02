@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <algorithm>
 
 class StringHelpers {
 
@@ -16,14 +17,21 @@ class StringHelpers {
 	}
 
 	public: static std::vector<std::string> split (const std::string &s, char delimiter) {
-    std::vector<std::string> result;
-    std::stringstream stream(s);
-    std::string item;
+		std::vector<std::string> result;
+		std::stringstream stream(s);
+		std::string item;
 
-    while (getline(stream, item, delimiter)) {
-        result.push_back (item);
-    }
+		while (getline(stream, item, delimiter)) {
+			result.push_back (item);
+		}
 
-    return result;
+		return result;
+	}
+
+	public: static std::string to_lower(const std::string& str) {
+		std::string lowerStr = str;
+		std::transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(),
+			[](unsigned char c){ return std::tolower(c); });
+		return lowerStr;
 	}
 };

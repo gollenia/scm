@@ -40,11 +40,12 @@ class MenuItems {
 				return;
 			}
 
+			std::string query = StringHelpers::to_lower(searchQuery);
 			for (const auto& entry : entries) {
-				if (entry.title_.find(searchQuery) != std::string::npos ||  // 🔍 Suche im Titel
-					entry.server_.find(searchQuery) != std::string::npos || // 🔍 Suche im Server
-					entry.username_.find(searchQuery) != std::string::npos || // 🔍 Suche im Username
-					entry.port_.find(searchQuery) != std::string::npos) { // 🔍 Suche im Port
+				if (StringHelpers::to_lower(entry.title_).find(query) != std::string::npos ||  // 🔍 Suche im Titel
+					StringHelpers::to_lower(entry.server_).find(query) != std::string::npos || // 🔍 Suche im Server
+					StringHelpers::to_lower(entry.username_).find(query) != std::string::npos || // 🔍 Suche im Username
+					StringHelpers::to_lower(entry.port_).find(query) != std::string::npos) { // 🔍 Suche im Port
 					filteredEntries.push_back(entry);
 				}
 			}
