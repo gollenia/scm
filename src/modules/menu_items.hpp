@@ -7,14 +7,15 @@
 class MenuItems {
 	public:
 		std::vector<MenuItem> entries;
+		std::vector<MenuItem> filteredEntries;
 		std::int8_t count;
 
-		std::vector<std::string> toStrings() {
-			
+		std::vector<std::string> toStrings() const {
 			std::vector<std::string> result;
-			for(int i = 0; i < entries.size(); i++) {
-			
-				result.push_back(entries[i].toString());
+
+			result.reserve(filteredEntries.size());
+			for(int i = 0; i < filteredEntries.size(); i++) {
+				result.push_back(filteredEntries[i].ToString());
 			}
 			return result;
 		}
@@ -31,52 +32,51 @@ class MenuItems {
 			return &entries[index];
 		}
 
-		MenuItem* findByShortcut(std::string shortcut) {
-			for(std::int8_t i{0}; i < count; i++) {
-				if(shortcut == entries[i].shortcut) {
-					return &entries[i];
+		void filter(const std::string& searchQuery) {
+			filteredEntries.clear();
+
+			if (searchQuery.empty() || searchQuery.length() < 2) {
+				filteredEntries = entries;
+				return;
+			}
+
+			for (const auto& entry : entries) {
+				if (entry.title_.find(searchQuery) != std::string::npos ||  // 🔍 Suche im Titel
+					entry.server_.find(searchQuery) != std::string::npos || // 🔍 Suche im Server
+					entry.username_.find(searchQuery) != std::string::npos || // 🔍 Suche im Username
+					entry.port_.find(searchQuery) != std::string::npos) { // 🔍 Suche im Port
+					filteredEntries.push_back(entry);
 				}
 			}
-			return nullptr;
-		}
+    	}
 
 		static MenuItems fromYAMLNode(YAML::Node items, Errors* error) {
 			
 			MenuItems instance;
-			int index = 0;
+			std::int8_t index = 0;
 			for(std::int8_t i = 0; i < items.size(); i++) {
-				std::int16_t errorLine{0};
+				std::int16_t errorLine = items[i].Mark().line;
 				
 				MenuItem entry;
-				if(!items[i]["shortcut"].IsDefined()) {
-					errorLine = items[i].Mark().line;
-				}
-				if(!items[i]["title"].IsDefined()) {
-					errorLine = items[i].Mark().line;
-				}
-				if(!items[i]["username"].IsDefined()) {
-					errorLine = items[i].Mark().line;
-				}
-				if(!items[i]["server"].IsDefined()) {
-					errorLine = items[i].Mark().line;
-				}
-								
-				if(errorLine) {
-					std::string message = "Error in config file arround line " + std::to_string(errorLine);
-					error->add(message);
+
+				if (!items[i]["server"].IsDefined()) {
+					std::string message = "Fehler in der Konfigurationsdatei (Zeile " + 
+										std::to_string(errorLine) + "): Kein Server angegeben!";
+					error->push(message);
 					continue;
-				}
+        		}
 				
-				entry.index = index;
-				entry.shortcut = items[i]["shortcut"].as<std::string>();
-				entry.title = items[i]["title"].as<std::string>();
-				entry.server = items[i]["server"].as<std::string>();;
-				entry.username = items[i]["username"].as<std::string>();;
-				entry.port = items[i]["port"].IsDefined() ? items[i]["port"].as<std::string>() : "22";
+				entry.index_ = index;
 				index++;
+				
+				entry.server_ = items[i]["server"].as<std::string>();
+				entry.title_ = items[i]["title"].IsDefined() ? items[i]["title"].as<std::string>() : items[i]["server"].as<std::string>();
+				entry.username_ = items[i]["username"].IsDefined() ? items[i]["username"].as<std::string>() : ""; // get user from os here
+				entry.port_ = items[i]["port"].IsDefined() ? items[i]["port"].as<std::string>() : "22";
+				
 				instance.entries.push_back(entry);
 			}
-			instance.count = index++;
+
 			return instance;
 		}
 	

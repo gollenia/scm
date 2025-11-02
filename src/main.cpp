@@ -1,4 +1,5 @@
 #include <iostream>
+#include <filesystem>
 #include <string>
 #include <unistd.h>
 #include <sys/types.h>
@@ -29,6 +30,14 @@ int main(int argc, char *argv[]) {
 	// later we add a command line argument here
 	std::string home(homedir);
 	std::string name = home + "/.scm.yaml";
+	std::string title = "SSH Connection Manager";
+	std::string searchQuery = "";
+
+	if(!std::filesystem::exists(name)) {
+		std::cout << "No configuration file found. Please create a .scm.yaml file in your home directory.\n" << std::endl;
+		return EXIT_SUCCESS;
+	}
+	
 	YAML::Node config = YAML::LoadFile(name);
 
 	if(config["connections"].size() == 0) {
@@ -39,20 +48,24 @@ int main(int argc, char *argv[]) {
 	int selected{0};
 	bool openConnection{false};
 
-	Errors* errors = new Errors;
+	Errors* errors = new Errors();
 	MenuItems items = MenuItems::fromYAMLNode(config["connections"], errors);
-
+	items.filter(searchQuery); // Initial filter
 	auto screen = ftxui::ScreenInteractive::Fullscreen();
 	std::vector<std::string> menuEntries = items.toStrings();
 	
 	auto menu = ConnectionMenu(&menuEntries, &selected);
 
-	Element bottomMessage = errors->existing() ? bgcolor(Color::Red, text(" " + errors->pop() + " ")) : text(" Make your choice");
 	
+	
+	auto renderer = Renderer(menu, [&menu, &searchQuery, &errors]() {
 
-	auto renderer = Renderer(menu, [&] {
+		Element bottomMessage = errors->has_errors() 
+			? bgcolor(Color::Red, text(" " + errors->pop() + " ")) 
+			: text(" Make your choice");
+
   		return vbox({
-			  text("SSH Connection Manager 0.0.2") | borderLight,
+			  text("Search: " + searchQuery) | borderLight,
 			  text(""),
 			  hbox(
 				  text(" #   Key Name") | flex_grow,
@@ -67,54 +80,51 @@ int main(int argc, char *argv[]) {
 				  text("Press C-c or F3 to quit")
 			  })
 		  });
-
 	});
 
-	
+	auto component = CatchEvent(renderer, [&screen, &searchQuery, &items, &menuEntries, &openConnection](Event event) {
 
-	// here, we capture the short keys and quit
-	auto component = CatchEvent(renderer, [&](Event event) {
-		if (event == Event::Return) {	
-				screen.ExitLoopClosure()();
-				openConnection = true;
-				return true;
-		}
-		// doesn't work, yet
-		if (isdigit(event.character().at(0))) {
-			selected = std::stoi(event.character()) + 1;
+		auto exit_now = [&screen]() { screen.ExitLoopClosure()(); };
+
+		if (event == Event::Return) {
+			exit_now();
 			openConnection = true;
-			screen.ExitLoopClosure()();
 			return true;
 		}
 
-		if (event == Event::F3) {	
-				screen.ExitLoopClosure()();
-				return true;
-		}
-		MenuItem* item = items.findByShortcut(event.character());
-		if(item) {
-			screen.ExitLoopClosure()();
-			selected = item->index;
-			openConnection = true;
+		if (event == Event::F3) {
+			exit_now();
 			return true;
-		};
+		}
+
+		if(event == Event::Backspace) {
+			if (searchQuery.empty()) {
+				return false;
+			}
+			
+			searchQuery.pop_back();
+			items.filter(searchQuery); // Filter aktualisieren
+			menuEntries = items.toStrings(); // 🔥 Menü-Liste aktualisiere
+			return true;
+		}
+
+		if(event.is_character()) {
+			searchQuery += event.character();
+			items.filter(searchQuery); // Filter aktualisieren
+			menuEntries = items.toStrings(); // 🔥 Menü-Liste aktualisieren
+			return true;
+		}
 		return false;
 	});
 	
-	// This really shout be in a sep. class
 	screen.Loop(component);
 
 	if(openConnection == false) {
 		return EXIT_SUCCESS;
 	}
 	
-	std::string command = items.find(selected)->getCommand();
-	int commandLength = command.size();
- 
-    char *cCommand = new char[commandLength + 1];
-	std::copy(command.begin(), command.end(), cCommand);
-    cCommand[commandLength] = '\0';
-	system(cCommand);
-	
+	std::string command = items.find(selected)->GetCommand();
+		
+
 	return EXIT_SUCCESS;
 }

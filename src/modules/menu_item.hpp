@@ -1,40 +1,34 @@
 #include <iostream>
+#include <iomanip>
 #include <string>
 #include "yaml-cpp/yaml.h"
 
-/**
- * Simple Class to make sure that no data is missing
- *
- */
 class MenuItem  {
-	public: int index{-1};
-	public: std::string shortcut;
-	public: std::string title;
-	public: std::string server;
-	public: std::string username;
-	public: std::string port; 
-	
-	/**
-	 * Simple Class to make sure that no data is missing
-	 *
-	 * @param node Even if there is only one possible unified theory. it is just a
-	 *               set of rules and equations.
-	 */
-	
+	public: int index_;
+	public: std::string title_;
+	public: std::string server_;
+	public: std::string username_;
+	public: std::string port_; 
 
-	public: std::string toString() {
-		std::string result = std::to_string(index + 1) + "|" + shortcut + "|" + title + "|" + username + "@" + server;
-		if(port != "22") {
-			result += ":" + port;
+	public: std::string ToString() const {
+		std::string result = std::to_string(index_ + 1) + "|" + title_ + "|" + username_ + "@" + server_;
+		if(port_ != "22") {
+			result += ":" + port_;
 		}
 		
 		return result;
 	}
 
-	public: std::string getCommand(std::string app = "ssh") {
-		std::string result = app + " " + username + "@" + server;
-		if(port != "22") {
-			result += " -p " + port;
+	std::string GetCommand(std::string app = "ssh") const {
+		std::string result = app + " ";
+
+		if (!username_.empty()) {
+			result += username_ + "@";
+		}
+
+		result += server_;
+		if (port_ != "22") {
+			result += " -p " + port_;
 		}
 		return result;
 	}
