@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 3.11)
 
-project(scm LANGUAGES CXX VERSION 1.0.0)
+project(scm LANGUAGES CXX VERSION 0.0.4)
 
 include(FetchContent)
  
