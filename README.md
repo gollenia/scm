@@ -63,6 +63,7 @@ connections:
 ## Changelog
 
 ### 0.0.4
+- stupid bugfix: not starting ssh
 - small bugfix: ignore uppercase letters in search
 
 ### 0.0.3
