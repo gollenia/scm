@@ -9,7 +9,7 @@ class StringHelpers {
 	public: static std::string join(std::vector<std::string> array, char delimiter) {
 		std::string result{""};
 		
-		for(std::uint8_t i; i < array.size(); i++) {
+		for(std::uint8_t i = 0; i < array.size(); i++) {
 			result += std::string(1, delimiter) + array[i];
 			
 		}
