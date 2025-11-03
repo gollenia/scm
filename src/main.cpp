@@ -124,7 +124,7 @@ int main(int argc, char *argv[]) {
 	}
 	
 	std::string command = items.find(selected)->GetCommand();
-		
+	std::system(command.c_str());
 
 	return EXIT_SUCCESS;
 }
