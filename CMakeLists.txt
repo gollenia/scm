@@ -19,13 +19,13 @@ FetchContent_Declare(
 
 FetchContent_GetProperties(ftxui)
 if(NOT ftxui_POPULATED)
-  FetchContent_Populate(ftxui)
+  FetchContent_MakeAvailable(ftxui)
   add_subdirectory(${ftxui_SOURCE_DIR} ${ftxui_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
 FetchContent_GetProperties(yaml-cpp)
 if(NOT yaml-cpp_POPULATED)
-  FetchContent_Populate(yaml-cpp)
+  FetchContent_MakeAvailable(yaml-cpp)
   add_subdirectory(${yaml-cpp_SOURCE_DIR} ${yaml-cpp_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
