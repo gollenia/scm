@@ -1,3 +1,5 @@
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+
 cmake_minimum_required (VERSION 3.5)
 
 project(scm LANGUAGES CXX VERSION 0.0.4)
@@ -19,7 +21,7 @@ set(FTXUI_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(
   ftxui
   GIT_REPOSITORY https://github.com/ArthurSonzogni/FTXUI.git
-  GIT_TAG        v6.0.0
+  GIT_TAG        v4.0.0
 )
 
 set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
