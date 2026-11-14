@@ -24,12 +24,11 @@ class MenuItems {
 			return entries.size();
 		}
 
-		MenuItem* find(std::uint8_t index) {
-			if(index >= entries.size()) {
-				std::cout << "Menu index not found";
+		MenuItem* find(int index) {
+			if(index < 0 || static_cast<std::size_t>(index) >= filteredEntries.size()) {
 				return nullptr;
 			}
-			return &entries[index];
+			return &filteredEntries[index];
 		}
 
 		void filter(const std::string& searchQuery) {

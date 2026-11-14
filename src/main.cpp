@@ -82,11 +82,12 @@ int main(int argc, char *argv[]) {
 		  });
 	});
 
-	auto component = CatchEvent(renderer, [&screen, &searchQuery, &items, &menuEntries, &openConnection](Event event) {
+	auto component = CatchEvent(renderer, [&screen, &searchQuery, &items, &menuEntries, &openConnection, &selected](Event event) {
 
 		auto exit_now = [&screen]() { screen.ExitLoopClosure()(); };
 
 		if (event == Event::Return) {
+			if (!items.find(selected)) return true;
 			exit_now();
 			openConnection = true;
 			return true;
@@ -105,6 +106,7 @@ int main(int argc, char *argv[]) {
 			searchQuery.pop_back();
 			items.filter(searchQuery); // Filter aktualisieren
 			menuEntries = items.toStrings(); // 🔥 Menü-Liste aktualisiere
+			selected = 0;
 			return true;
 		}
 
@@ -112,6 +114,7 @@ int main(int argc, char *argv[]) {
 			searchQuery += event.character();
 			items.filter(searchQuery); // Filter aktualisieren
 			menuEntries = items.toStrings(); // 🔥 Menü-Liste aktualisieren
+			selected = 0;
 			return true;
 		}
 		return false;
@@ -123,7 +126,9 @@ int main(int argc, char *argv[]) {
 		return EXIT_SUCCESS;
 	}
 	
-	std::string command = items.find(selected)->GetCommand();
+	auto* item = items.find(selected);
+	if (!item) return EXIT_SUCCESS;
+	std::string command = item->GetCommand();
 	std::system(command.c_str());
 
 	return EXIT_SUCCESS;
