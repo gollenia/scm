@@ -11,10 +11,11 @@
 #include "ftxui/component/screen_interactive.hpp"  // for ScreenInteractive
 #include "yaml-cpp/yaml.h"
 #include "string_helpers.hpp"
-#include "connection_menu.hpp"
 
 #include "modules/errors.hpp"
 #include "modules/menu_items.hpp"
+#include "connection_menu.hpp"
+#include "connection_editor.hpp"
 
 
 int main(int argc, char *argv[]) {
@@ -33,16 +34,17 @@ int main(int argc, char *argv[]) {
 	std::string title = "SSH Connection Manager";
 	std::string searchQuery = "";
 
-	if(!std::filesystem::exists(name)) {
-		std::cout << "No configuration file found. Please create a .scm.yaml file in your home directory.\n" << std::endl;
-		return EXIT_SUCCESS;
-	}
-	
-	YAML::Node config = YAML::LoadFile(name);
-
-	if(config["connections"].size() == 0) {
-		std::cout << "No connections found.\n" << std::endl;
-		return EXIT_SUCCESS;
+	YAML::Node config(YAML::NodeType::Map);
+	try {
+		if (std::filesystem::exists(name)) config = YAML::LoadFile(name);
+		if (config.IsNull()) config = YAML::Node(YAML::NodeType::Map);
+		if (!config.IsMap() || (config["connections"] && !config["connections"].IsSequence())) {
+			std::cerr << "Invalid configuration: expected a map with a connections list.\n";
+			return EXIT_FAILURE;
+		}
+	} catch (const std::exception& e) {
+		std::cerr << "Could not load configuration: " << e.what() << '\n';
+		return EXIT_FAILURE;
 	}
     
 	int selected{0};
@@ -53,8 +55,16 @@ int main(int argc, char *argv[]) {
 	items.filter(searchQuery); // Initial filter
 	auto screen = ftxui::ScreenInteractive::Fullscreen();
 	std::vector<std::string> menuEntries = items.toStrings();
+	if (menuEntries.empty()) menuEntries.push_back("1|No connections| ");
 	
-	auto menu = ConnectionMenu(&menuEntries, &selected);
+	auto menu = ConnectionMenu(&menuEntries, &selected, &items);
+	ConnectionEditor editor(config, name, [&] {
+		items = MenuItems::fromYAMLNode(config["connections"], errors);
+		items.filter(searchQuery);
+		menuEntries = items.toStrings();
+		if (menuEntries.empty()) menuEntries.push_back("1|No connections| ");
+		selected = 0;
+	});
 
 	
 	
@@ -77,14 +87,23 @@ int main(int argc, char *argv[]) {
 			  hbox({
 				  bottomMessage,
 				  text("") | flex_grow,
-				  text("Press C-c or F3 to quit")
+			  text("F4: delete | F5: new | F6: edit | F3: quit")
 			  })
 		  });
 	});
 
-	auto component = CatchEvent(renderer, [&screen, &searchQuery, &items, &menuEntries, &openConnection, &selected](Event event) {
+	auto component = CatchEvent(renderer, [&screen, &searchQuery, &items, &menuEntries, &openConnection, &selected, &editor](Event event) {
 
 		auto exit_now = [&screen]() { screen.ExitLoopClosure()(); };
+		if (event == Event::F4) {
+			if (auto* item = items.find(selected)) editor.confirm_delete(*item);
+			return true;
+		}
+		if (event == Event::F5) { editor.open(nullptr); return true; }
+		if (event == Event::F6) {
+			if (auto* item = items.find(selected)) editor.open(item);
+			return true;
+		}
 
 		if (event == Event::Return) {
 			if (!items.find(selected)) return true;
@@ -106,6 +125,7 @@ int main(int argc, char *argv[]) {
 			searchQuery.pop_back();
 			items.filter(searchQuery); // Filter aktualisieren
 			menuEntries = items.toStrings(); // 🔥 Menü-Liste aktualisiere
+			if (menuEntries.empty()) menuEntries.push_back("1|No connections| ");
 			selected = 0;
 			return true;
 		}
@@ -114,13 +134,14 @@ int main(int argc, char *argv[]) {
 			searchQuery += event.character();
 			items.filter(searchQuery); // Filter aktualisieren
 			menuEntries = items.toStrings(); // 🔥 Menü-Liste aktualisieren
+			if (menuEntries.empty()) menuEntries.push_back("1|No connections| ");
 			selected = 0;
 			return true;
 		}
 		return false;
 	});
 	
-	screen.Loop(component);
+	screen.Loop(Modal(component, editor.component(), editor.visible()));
 
 	if(openConnection == false) {
 		return EXIT_SUCCESS;
@@ -128,8 +149,21 @@ int main(int argc, char *argv[]) {
 	
 	auto* item = items.find(selected);
 	if (!item) return EXIT_SUCCESS;
-	std::string command = item->GetCommand();
-	std::system(command.c_str());
-
-	return EXIT_SUCCESS;
+	std::vector<std::string> arguments = {"ssh"};
+	if (!item->username_.empty()) {
+		arguments.push_back("-l");
+		arguments.push_back(item->username_);
+	}
+	if (item->port_ != "22") {
+		arguments.push_back("-p");
+		arguments.push_back(item->port_);
+	}
+	arguments.push_back("--");
+	arguments.push_back(item->server_);
+	std::vector<char*> argv_ssh;
+	for (auto& argument : arguments) argv_ssh.push_back(argument.data());
+	argv_ssh.push_back(nullptr);
+	execvp("ssh", argv_ssh.data());
+	std::perror("Could not start ssh");
+	return EXIT_FAILURE;
 }

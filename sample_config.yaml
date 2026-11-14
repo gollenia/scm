@@ -4,7 +4,8 @@ connections:
   - title: "DigitalOcean"
     server: "mydroplet.example.net"
     username: root
-	  port: 4022
+    port: 4022
+    color: "#FF9900"
   - title: "Home Server"
     server: "192.168.1.5"
     port: 4022

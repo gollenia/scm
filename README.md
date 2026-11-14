@@ -1,26 +1,27 @@
 # SSH Connection manager
 
-This is a small and (yet) dirty SSH connection manager. You can use it to quickly connect to different servers with different usernames and ports. There already exists [nccm](https://github.com/flyingrhinonz/nccm), but it was not exactly what I was looking for.
+SCM is a small terminal-based SSH connection manager for quickly connecting to servers with different usernames and ports. It uses the system's `ssh` command and stores connections in a YAML file.
 
 ![Screenshot](https://gollenia.at/wp-content/uploads/2022/05/scm.jpg)
 
 ## Features
-### Finished
-- Search function for quick access
-- Connections can be accessed by their number (only 1-9)
+
+- Case-insensitive search by title, server, username, or port (starting at two characters)
+- Create, edit, and delete connections in the terminal
+- Optional color per connection using a hexadecimal RGB value
 
 ### Planned
-- Interactive connection editor (F2)
+
 - Help text (F1)
-- commandline options (config file path, ...)
-- colors, icons (nerdfont)
+- Command-line options (config file path, ...)
+- Icons (Nerd Font)
 
 ## Build
 
-To build scm, you need to install `yaml-cpp` first. On Ubuntu, type
+To build scm, you need CMake, Git, and a C++20-compatible compiler. On Ubuntu, install them with:
 
 ```shellsession
-$ sudo apt-get install libyaml-cpp-dev
+$ sudo apt-get install build-essential cmake git
 ```
 
 Then, clone the repository
@@ -30,37 +31,65 @@ $ cd
 $ git clone https://github.com/gollenia/scm
 ```
 
-Please be aware that the Connection manager uses [FTXUI](https://github.com/ArthurSonzogni/FTXUI), a Terminal UI comparable to ncurses. So when running cmake, make sure you have a working internet connection:
+CMake downloads [FTXUI](https://github.com/ArthurSonzogni/FTXUI) and [yaml-cpp](https://github.com/jbeder/yaml-cpp) when configuring the project for the first time, so you need an internet connection:
 
 ```shellsession
 $ cd scm
-$ cmake .
-$ make
+$ cmake -S . -B build
+$ cmake --build build
 ```
+
+Run the executable with `./build/scm`. An SSH client must be available as `ssh` on your `PATH` to open connections.
+
+## Usage
+
+Type in the connection list to search; filtering starts at two characters. Use Backspace to remove search characters.
+
+| Key | Action |
+| --- | --- |
+| Arrow keys | Select a connection |
+| Enter | Connect to the selected server |
+| F3 or Ctrl+C | Quit |
+| F4 | Delete the selected connection after confirmation |
+| F5 | Create a connection |
+| F6 | Edit the selected connection |
+
+In the editor, use Tab and Shift+Tab to move between fields, F2 to save, and Escape to cancel. In the deletion prompt, press Enter to confirm or Escape to cancel.
 
 ## Configure
 
-Add a `~/.scm.yaml` file and add connections like so:
+Connections are stored in `~/.scm.yaml`. You can create and edit them in SCM, or create the file yourself:
 
-```
+```yaml
 connections:
   - title: "DigitalOcean"
     server: "mydroplet.example.net"
     username: root
-	port: 4022
+    port: 4022
+    color: "#FF9900"
   - title: "Home Server"
     server: "192.168.1.5"
     username: john
 ```
 
-> 👉 Add `"\es": "scm\n"` to your `.inputrc` and you can call scm with <kbd>ALT</kbd>+<kbd>s</kbd>. So you can connect to your home server, for example with <kbd>ALT</kbd>+<kbd>s</kbd> <kbd>k</kbd>
+Only `server` is required. `title` defaults to the server name, `username` defaults to the SSH client's choice, and `port` defaults to 22. In the editor, ports must be between 1 and 65535, and `|` is not supported in the title, server, or username.
+
+The optional `color` sets the connection title's text color. Use a quoted six-digit hex value (`"#RRGGBB"`); quote it because `#` starts a YAML comment. Invalid colors are ignored and reported in the interface. Color rendering depends on terminal support.
+
+Saving or deleting rewrites `~/.scm.yaml`: YAML comments and formatting are not preserved, but other configuration fields are retained.
+
+> 👉 If `scm` is on your `PATH`, add `"\es": "scm\n"` to your `.inputrc` to start it with <kbd>ALT</kbd>+<kbd>s</kbd>.
 
 ## FAQ
 
-  - Can I store Passwords? 
-  No. I assume you use SSH keys, which is much safer
+**Can I store passwords?** No. SCM delegates authentication to the SSH client; use SSH keys or the client's normal authentication prompts.
 
 ## Changelog
+
+### Unreleased
+
+- Add connection creation, editing, and deletion with confirmation.
+- Support optional connection colors.
 
 ### 0.0.4
 - stupid bugfix: not starting ssh

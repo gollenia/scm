@@ -1,14 +1,17 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
+#include <optional>
 #include "yaml-cpp/yaml.h"
 
 class MenuItem  {
 	public: int index_;
+	public: std::size_t yaml_index_;
 	public: std::string title_;
 	public: std::string server_;
 	public: std::string username_;
 	public: std::string port_; 
+	public: std::optional<unsigned int> color_;
 
 	public: std::string ToString() const {
 		std::string result = std::to_string(index_ + 1) + "|" + title_ + "|" + username_ + "@" + server_;

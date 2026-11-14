@@ -1,6 +1,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <algorithm>
+#include <cctype>
 #include "menu_item.hpp"
 
 
@@ -53,8 +55,8 @@ class MenuItems {
 		static MenuItems fromYAMLNode(YAML::Node items, Errors* error) {
 			
 			MenuItems instance;
-			std::int8_t index = 0;
-			for(std::int8_t i = 0; i < items.size(); i++) {
+			int index = 0;
+			for(std::size_t i = 0; i < items.size(); i++) {
 				std::int16_t errorLine = items[i].Mark().line;
 				
 				MenuItem entry;
@@ -67,12 +69,24 @@ class MenuItems {
         		}
 				
 				entry.index_ = index;
+				entry.yaml_index_ = i;
 				index++;
 				
 				entry.server_ = items[i]["server"].as<std::string>();
 				entry.title_ = items[i]["title"].IsDefined() ? items[i]["title"].as<std::string>() : items[i]["server"].as<std::string>();
 				entry.username_ = items[i]["username"].IsDefined() ? items[i]["username"].as<std::string>() : ""; // get user from os here
 				entry.port_ = items[i]["port"].IsDefined() ? items[i]["port"].as<std::string>() : "22";
+				if (items[i]["color"].IsDefined()) {
+					const auto color = items[i]["color"];
+					const std::string value = color.IsScalar() ? color.Scalar() : "";
+					if (value.size() == 7 && value[0] == '#' &&
+						std::all_of(value.begin() + 1, value.end(), [](unsigned char c) { return std::isxdigit(c); })) {
+						entry.color_ = static_cast<unsigned int>(std::stoul(value.substr(1), nullptr, 16));
+					} else {
+						error->push("Ungueltige Farbe in der Konfigurationsdatei (Zeile " +
+							std::to_string(color.Mark().line + 1) + "): Erwartet wird #RRGGBB.");
+					}
+				}
 				
 				instance.entries.push_back(entry);
 			}

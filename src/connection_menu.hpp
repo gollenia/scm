@@ -8,13 +8,19 @@
 
 using namespace ftxui;
 
-Component ConnectionMenu(std::vector<std::string>* entries, int* selected) {
+Component ConnectionMenu(std::vector<std::string>* entries, int* selected, const MenuItems* items) {
 	auto option = MenuOption::Vertical();
-	option.entries.transform = [](EntryState state) {
+	option.entries.transform = [items](EntryState state) {
 		std::vector<std::string> labelArray = StringHelpers::split(state.label, '|');
-		std::string numberColumn = (std::stoi(labelArray[0]) < 10 ?  "  " + labelArray[0] : " " + labelArray[0] );
+		int index = std::stoi(labelArray[0]) - 1;
+		std::string numberColumn = (index < 9 ?  "  " + labelArray[0] : " " + labelArray[0] );
+		Element title = text(" " + numberColumn + " " + labelArray[1]);
+		if (index >= 0 && static_cast<std::size_t>(index) < items->entries.size() && items->entries[index].color_) {
+			auto rgb = *items->entries[index].color_;
+			title = title | color(Color::RGB((rgb >> 16) & 0xff, (rgb >> 8) & 0xff, rgb & 0xff));
+		}
 		Element e = hbox({
-			text(" " + numberColumn + " " + labelArray[1]) | flex,
+			title | flex,
 			text(labelArray[2] + " "),
 		});
 		if (state.focused)
